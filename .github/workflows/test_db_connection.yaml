@@ -1,0 +1,43 @@
+name: Deploy Changes to Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      DB_HOST:
+        description: 'Database Server Hostname'
+        required: true
+      DB_USER:
+        description: 'Database Username'
+        required: true
+      DB_PASS:
+        description: 'Database Password'
+        required: true
+      DB_NAME:
+        description: 'Database Name'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install sqlcmd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools unixodbc-dev
+
+      - name: Deploy changed SQL scripts to database
+        env:
+          DB_HOST: ${{ github.event.inputs.DB_HOST }}
+          DB_USER: ${{ github.event.inputs.DB_USER }}
+          DB_PASS: ${{ github.event.inputs.DB_PASS }}
+          DB_NAME: ${{ github.event.inputs.DB_NAME }}
+        run: |
+          echo "Testing connection to $DB_HOST..."
+          if ! sqlcmd -S "$DB_HOST" -U "$DB_USER" -P "$DB_PASS" -Q "SELECT 1" -d "$DB_NAME"; then
+            echo "Connection to database failed!"
+            exit 1
+          fi
