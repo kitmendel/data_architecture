@@ -62,7 +62,15 @@ def generate_db_diagram(csv_file, table_names, limit_connections, output_file="o
         if not(limit_connections) or (limit_connections and COLUMN_NAME.upper().endswith("NO") and len(group["TABLE_NAME"].unique()) > 1):
             tables_with_column = group["TABLE_NAME"].unique()
             for i in range(len(tables_with_column) - 1):
-                dot.edge(tables_with_column[i], tables_with_column[i + 1], label=COLUMN_NAME)
+                dot.edge(
+                    tables_with_column[i],
+                    tables_with_column[i + 1],
+                    label=COLUMN_NAME,
+                    labelfloat="true",        
+                    labeldistance="1.5",
+                    labelangle="0" 
+                )
+
 
     
     # Append datetime to output file name
